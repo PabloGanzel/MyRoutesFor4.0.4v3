@@ -87,7 +87,7 @@ public class RoutesListFragment extends ListFragment implements IEditor {
         });
     }
 
-    ArrayList<Integer> listOfItemForDeleting = new ArrayList<Integer>();
+    //ArrayList<Integer> listOfItemForDeleting = new ArrayList<Integer>();
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
