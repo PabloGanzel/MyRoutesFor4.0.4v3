@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 /**
  * Created by Paul on 26.11.2017.
@@ -69,6 +70,8 @@ public class EditRouteFragment extends Fragment {
                 route.setStartTime(editTextStartTime.getText().toString());
                 route.setEndTime(editTextEndTime.getText().toString());
                 mListener.save();
+                Toast.makeText(getActivity().getBaseContext(),"Сохранено",Toast.LENGTH_SHORT).show();
+                getActivity().onBackPressed();
             }
         });
 
