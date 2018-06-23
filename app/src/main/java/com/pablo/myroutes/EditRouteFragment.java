@@ -15,7 +15,7 @@ import android.widget.Toast;
  * Created by Paul on 26.11.2017.
  */
 
-public class EditRouteFragment extends Fragment {
+public class EditRouteFragment extends Fragment implements IEditor {
 
     private static final String ARG_PARAM = "param";
     private Route route;
@@ -65,10 +65,23 @@ public class EditRouteFragment extends Fragment {
         buttonOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(editTextEndAddress.getText().toString().equals("")
+                        ||editTextStartAddress.getText().toString().equals("")
+                        ||editTextStartTime.getText().toString().equals("")
+                        ||editTextEndTime.getText().toString().equals("")
+                        ||editTextLength.getText().toString().equals("")){
+                    Toast.makeText(getContext(),"Все поля должны быть заполнены", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(!Helper.isTimeCorrect(editTextStartTime.getText().toString(),editTextEndTime.getText().toString())){
+                    Toast.makeText(getContext(), "Некорректное время",Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 route.setStartPoint(editTextStartAddress.getText().toString());
                 route.setEndPoint(editTextEndAddress.getText().toString());
                 route.setStartTime(editTextStartTime.getText().toString());
                 route.setEndTime(editTextEndTime.getText().toString());
+                route.setLength(Integer.parseInt(editTextLength.getText().toString()));
                 mListener.save();
                 Toast.makeText(getActivity().getBaseContext(),"Сохранено",Toast.LENGTH_SHORT).show();
                 getActivity().onBackPressed();
@@ -93,5 +106,16 @@ public class EditRouteFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void deleting(){
+        //mListener.deleteRouteAndSave(route);
+        Toast.makeText(getActivity().getBaseContext(),"лол22",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void exporting() {
+
     }
 }

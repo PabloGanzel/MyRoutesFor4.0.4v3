@@ -20,4 +20,45 @@
     <string name="endTime">Время приезда</string>
     <string name="length">Расстояние</string>
 
+    <string-array name="addresses">
+        <item>Воскресенская улица, 20</item>
+        <item>Воскресенская улица, 112</item>
+        <item>Вологодская улица, 10</item>
+        <item>1234</item>
+        <item>123454</item>
+        <item>1235</item>
+        <item>12345</item>
+        <item>1234545</item>
+        <item>1236</item>
+        <item>12346</item>
+        <item>1234546</item>
+        <item>1237</item>
+        <item>12347</item>
+        <item>1234547</item>
+        <item>1238</item>
+        <item>12348</item>
+        <item>1234548</item>
+        <item>1239</item>
+        <item>12349</item>
+        <item>1234549</item>
+        <item>1230</item>
+        <item>12340</item>
+        <item>1234540</item>
+        <item>1231</item>
+        <item>12341</item>
+        <item>1234541</item>
+        <item>1232</item>
+        <item>12342</item>
+        <item>1234542</item>
+        <item>1233</item>
+        <item>12343</item>
+        <item>1234543</item>
+        <item>123444</item>
+        <item>12344</item>
+        <item>1234544</item>
+        <item>1230000000000</item>
+        <item>123400000000</item>
+        <item>123454000000000</item>
+    </string-array>
+
 </resources>

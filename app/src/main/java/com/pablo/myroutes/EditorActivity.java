@@ -68,4 +68,10 @@ public class EditorActivity extends AppCompatActivity implements ISaver {
         } catch (Exception e) {
         }
     }
+
+    @Override
+    public void deleteRouteAndSave(Route route) {
+        RoutingDayList.remove(route);
+        save();
+    }
 }

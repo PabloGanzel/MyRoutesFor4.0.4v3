@@ -10,10 +10,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements IFragmentsInteractionListener {
@@ -105,13 +109,46 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         int id = item.getItemId();
 
         if (id == R.id.action_edit) {
-            Intent intent = new Intent(MainActivity.this,EditorActivity.class);
+            Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+
             startActivity(intent);
+            return true;
+        }
+        if (id == R.id.save) {
+            try {
+                Helper.backup(new Object[]{routingDayList, routingDay, route});
+            } catch (IOException ex) {
+
+            }
+            //showPopupMenu());
+            //Intent intent = new Intent(MainActivity.this,EditorActivity.class);
+            //startActivity(intent);
+            return true;
+        }
+        if (id == R.id.restore) {
+            try {
+                Object[] objects = Helper.restore();
+                if(objects[0]!=null) routingDayList = (ArrayList<RoutingDay>)objects[0];
+                if(objects[1]!=null) routingDay = (RoutingDay)objects[1];
+                if(objects[2]!=null) route = (Route)objects[2];
+                Helper.saveObject(routingDay, CURRENT_DAY_TAG, getBaseContext());
+                Helper.saveObject(route, CURRENT_ROUTE_TAG, getBaseContext());
+                Helper.saveObject(routingDayList, DAYS_LIST_TAG, getBaseContext());
+            } catch (Exception ex) {
+                Log.d(ex.toString(),ex.getMessage());
+
+            }
+
+            //showPopupMenu());
+            //Intent intent = new Intent(MainActivity.this,EditorActivity.class);
+            //startActivity(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
     @Override
     public void openRoutingDay(int kilometrageStartDay) {

@@ -90,6 +90,9 @@ class Route implements Serializable {
     public int getLength() {
         return length;
     }
+    public void setLength(int length){
+        this.length = length;
+    }
     public int getDuration(){
         return this.duration;
     }

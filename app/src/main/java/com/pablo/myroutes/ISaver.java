@@ -6,4 +6,5 @@ package com.pablo.myroutes;
 
 public interface ISaver {
     void save();
+    void deleteRouteAndSave(Route route);
 }

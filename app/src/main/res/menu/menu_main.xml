@@ -7,4 +7,18 @@
         android:orderInCategory="100"
         android:title="@string/action_edit"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_backup"
+        android:orderInCategory="100"
+        android:title="Бэкап"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/save"
+                android:title="Сохранить"/>
+            <item
+                android:id="@+id/restore"
+                android:title="Восстановить"/>
+        </menu>
+    </item>
 </menu>

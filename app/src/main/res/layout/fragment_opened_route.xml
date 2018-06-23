@@ -84,15 +84,15 @@
             app:layout_constraintTop_toBottomOf="@+id/textViewStartPointAddress"
             android:layout_marginStart="29dp" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/editTextEndPointAddress"
             android:layout_width="218dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="11dp"
             android:layout_marginStart="11dp"
-            android:layout_marginTop="51dp"
+            android:layout_marginTop="52dp"
             android:ems="10"
-
+            android:dropDownHeight="wrap_content"
             android:inputType="textMultiLine|textPostalAddress"
             android:textColorLink="?attr/colorButtonNormal"
             android:textSize="14sp"
@@ -158,6 +158,31 @@
             android:layout_marginTop="17dp"
             app:layout_constraintTop_toBottomOf="@+id/editTextEndPointAddress"
             android:layout_marginStart="1dp" />
+
+        <TextView
+            android:id="@+id/textViewProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="23dp"
+            android:layout_marginLeft="10dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/buttonEndRoute"
+            app:layout_constraintLeft_toRightOf="@+id/progressBar"
+            android:layout_marginStart="10dp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="14dp"
+            android:layout_marginLeft="16dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/buttonEndRoute"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginStart="16dp" />
+
+
 
     </android.support.constraint.ConstraintLayout>
 
