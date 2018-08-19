@@ -83,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
     @Override
     protected void onPause() {
         super.onPause();
-
         try {
             Helper.saveObject(routingDay, CURRENT_DAY_TAG, getBaseContext());
             Helper.saveObject(route, CURRENT_ROUTE_TAG, getBaseContext());

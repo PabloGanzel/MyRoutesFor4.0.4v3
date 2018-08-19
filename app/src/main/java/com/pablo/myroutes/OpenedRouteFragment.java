@@ -112,7 +112,8 @@ public class OpenedRouteFragment extends DialogFragment{
 
         editTextEndPointAddress.setAdapter(new ArrayAdapter<>(
                 getContext(),
-                android.R.layout.simple_dropdown_item_1line,
+                R.layout.my_dropdown_item,
+                //android.R.layout.simple_dropdown_item_1line,
                 Helper.ADDRESS_LIST
         ));
 
