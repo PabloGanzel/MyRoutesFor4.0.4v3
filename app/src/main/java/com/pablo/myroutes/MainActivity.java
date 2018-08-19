@@ -1,21 +1,19 @@
 package com.pablo.myroutes;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,12 +23,16 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
     public static final String DAYS_LIST_TAG = "list_of_day";
     public static final String CURRENT_DAY_TAG = "current_day";
     public static final String CURRENT_ROUTE_TAG = "current_route";
+    public static final String ADDRESS_LIST_TAG = "list_of_addresses";
 
     int kilometrageStartDay;
 
     ArrayList<RoutingDay> routingDayList;
     RoutingDay routingDay;
     Route route;
+
+    NotificationManager notificationManager;
+    NotificationChannel mChannel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +41,18 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        try{
+            Helper.ADDRESS_LIST = (ArrayList<String>)Helper.getObjectByTag(ADDRESS_LIST_TAG,getBaseContext());
+        }
+        catch (Exception e){
+            Helper.ADDRESS_LIST = new ArrayList<>();
+        }
+
         try {
             routingDayList = (ArrayList<RoutingDay>) Helper.getObjectByTag(DAYS_LIST_TAG, getBaseContext());
             kilometrageStartDay = routingDayList.get(routingDayList.size() - 1).getKilometrageOnEndingDay();
         } catch (Exception e) {
-            routingDayList = new ArrayList<RoutingDay>();
+            routingDayList = new ArrayList<>();
         }
 
         try {
@@ -70,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         }
     }
 
+    //@RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onPause() {
         super.onPause();
@@ -77,26 +87,38 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         try {
             Helper.saveObject(routingDay, CURRENT_DAY_TAG, getBaseContext());
             Helper.saveObject(route, CURRENT_ROUTE_TAG, getBaseContext());
+            Helper.saveObject(Helper.ADDRESS_LIST, ADDRESS_LIST_TAG, getBaseContext());
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        if(route.isOpen()) showNotification("Маршрут не завершен");
+        else if(routingDay.isOpen()) showNotification("День не завершен");
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         try {
             routingDayList = (ArrayList<RoutingDay>) Helper.getObjectByTag(DAYS_LIST_TAG, getBaseContext());
             kilometrageStartDay = routingDayList.get(routingDayList.size() - 1).getKilometrageOnEndingDay();
         } catch (Exception e) {
-            routingDayList = new ArrayList<RoutingDay>();
+            routingDayList = new ArrayList<>();
         }
 
         try {
             routingDay = (RoutingDay) Helper.getObjectByTag(CURRENT_DAY_TAG, getBaseContext());//routingDay = (RoutingDay) deSerializeObject(CURRENT_DAY_TAG);
 
-        } catch (Exception e) { }
+        } catch (Exception e) {
+        }
+        try {
+            Helper.ADDRESS_LIST = (ArrayList<String>) Helper.getObjectByTag(ADDRESS_LIST_TAG, getBaseContext());
+        } catch (Exception e) {
+        }
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(1);
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -116,13 +138,10 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         }
         if (id == R.id.save) {
             try {
-                Helper.backup(new Object[]{routingDayList, routingDay, route});
+                Helper.backup(new Object[]{routingDayList, routingDay, route, Helper.ADDRESS_LIST});
             } catch (IOException ex) {
 
             }
-            //showPopupMenu());
-            //Intent intent = new Intent(MainActivity.this,EditorActivity.class);
-            //startActivity(intent);
             return true;
         }
         if (id == R.id.restore) {
@@ -131,24 +150,18 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
                 if(objects[0]!=null) routingDayList = (ArrayList<RoutingDay>)objects[0];
                 if(objects[1]!=null) routingDay = (RoutingDay)objects[1];
                 if(objects[2]!=null) route = (Route)objects[2];
+                if(objects[3]!=null) Helper.ADDRESS_LIST = (ArrayList<String>)objects[3];
+
                 Helper.saveObject(routingDay, CURRENT_DAY_TAG, getBaseContext());
                 Helper.saveObject(route, CURRENT_ROUTE_TAG, getBaseContext());
                 Helper.saveObject(routingDayList, DAYS_LIST_TAG, getBaseContext());
-            } catch (Exception ex) {
-                Log.d(ex.toString(),ex.getMessage());
+                Helper.saveObject(Helper.ADDRESS_LIST, ADDRESS_LIST_TAG, getBaseContext());
 
-            }
-
-            //showPopupMenu());
-            //Intent intent = new Intent(MainActivity.this,EditorActivity.class);
-            //startActivity(intent);
+            } catch (Exception ex) {}
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
-
-
 
     @Override
     public void openRoutingDay(int kilometrageStartDay) {
@@ -181,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         route.close();
 
         routingDay.addRoute(route);
+
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, ClosedRouteFragment.newInstance(route)).commit();
     }
 
@@ -197,6 +211,67 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         }catch(Exception e){
             e.printStackTrace();
         }
+
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, OpenDayFragment.newInstance(kilometrageStartDay),"OpenDayFragment").commit();
+    }
+
+    private void showNotification(String message) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(notificationManager == null) {
+                notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            }
+
+            // There are hardcoding only for show it just strings
+            String name = "channel";
+            String id = "channel_ID"; // The user-visible name of the channel.
+            String description = ""; // The user-visible description of the channel.
+
+            Intent intent;
+            PendingIntent pendingIntent;
+            Notification.Builder builder;
+
+            mChannel = notificationManager.getNotificationChannel(id);
+            if (mChannel == null) {
+                mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH);
+                mChannel.setDescription(description);
+                notificationManager.createNotificationChannel(mChannel);
+            }
+            builder = new Notification.Builder(getBaseContext(), mChannel.getId());
+
+            intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+            builder.setContentTitle(message)  // required
+                    .setSmallIcon(R.drawable.icon_l) // required
+                    .setContentText("")  // required
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent);
+
+            notificationManager.createNotificationChannel(mChannel);
+
+            notificationManager.notify(1, builder.build());
+        }
+        else{
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.icon_l)
+                            .setContentTitle(message)
+                            .setContentText("");
+
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            stackBuilder.addParentStack(MainActivity.class);
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+            mBuilder.setContentIntent(resultPendingIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(1, mBuilder.build());
+        }
     }
 }

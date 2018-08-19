@@ -2,6 +2,7 @@ package com.pablo.myroutes;
 
 import android.content.Context;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -23,6 +25,7 @@ import java.util.regex.Pattern;
 public class Helper {
 
     static final String DEFAULT_POINT_ADDRESS = "проспект Ломоносова, 183к1";
+    static ArrayList<String> ADDRESS_LIST;
     private static Pattern pattern = Pattern.compile("([01]?\\d|2[0-4]):([0-5]\\d)");
 
     static String getTimeNow() {

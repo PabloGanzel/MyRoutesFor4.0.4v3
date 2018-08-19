@@ -1,21 +1,14 @@
 package com.pablo.myroutes;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,26 +21,16 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import org.apache.poi.ss.formula.functions.T;
-
-import java.lang.reflect.Array;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.regex.*;
-
 /**
  * Created by Paul on 23.11.2017.
  */
 
-public class OpenedRouteFragment extends Fragment {
+public class OpenedRouteFragment extends DialogFragment{
 
     AutoCompleteTextView editTextEndPointAddress;
-    EditText editTextTimeEnd, editTextKilometrageEnd;
+    EditText editTextKilometrageEnd;
     ProgressBar progressBar;
-    TextView textViewProgress;
+    TextView textViewProgress, editTextTimeEnd;
 
     private static final String ARG_PARAM = "param";
     private Route route;
@@ -120,23 +103,55 @@ public class OpenedRouteFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
 
         //editTextEndPointAddress = view.findViewById(R.id.editTextEndPointAddress);
-        editTextTimeEnd = view.findViewById(R.id.editTextTimeEnd);
+        editTextTimeEnd = view.findViewById(R.id.textViewTimeEnd);
         editTextTimeEnd.setInputType(InputType.TYPE_CLASS_NUMBER);
         editTextKilometrageEnd = view.findViewById(R.id.editTextKilometrageEnd);
         editTextKilometrageEnd.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         editTextEndPointAddress = view.findViewById(R.id.editTextEndPointAddress);
-//        //String[] strings = getResources().getStringArray(R.array.addresses);
-//        //List<String> l = Arrays.asList(strings);
-        ArrayAdapter<String> addressListAdapter = new ArrayAdapter<String>(
+
+        editTextEndPointAddress.setAdapter(new ArrayAdapter<>(
                 getContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                Arrays.asList(getResources().getStringArray(R.array.addresses))
-        );
-        editTextEndPointAddress.setAdapter(addressListAdapter);
-//        autoCompleteTextView.setText("123");
+                Helper.ADDRESS_LIST
+        ));
 
+        editTextTimeEnd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String[] timeString = Helper.getTimeNow().split(":");
+                int hour = Integer.parseInt(timeString[0]);
+                int minute = Integer.parseInt(timeString[1]);
+                new TimePickerDialog(getContext(),new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                        String strHour="";
+                        String strMinute="";
+                        if(hour<10){
+                            strHour="0"+String.valueOf(hour);
+                        }
+                        else strHour = String.valueOf(hour);
+                        if(minute<10){
+                            strMinute="0"+String.valueOf(minute);
+                        }
+                        else {
+                            strMinute = String.valueOf(minute);
+                        }
+                       // editTextTimeEnd.setText(hour+":"+minute);}
 
+                        editTextTimeEnd.setText(strHour+":"+strMinute);
+                    }
+                },hour,minute,true).show();
+            }
+        });
+
+        final Button buttonClear = view.findViewById(R.id.buttonClear);
+        buttonClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editTextEndPointAddress.setText("");
+            }
+        });
 
         final Button buttonPlus = view.findViewById(R.id.buttonPlus);
         buttonPlus.setOnClickListener(new View.OnClickListener() {
@@ -165,6 +180,19 @@ public class OpenedRouteFragment extends Fragment {
                         Toast.makeText(getContext(),"Не указан адрес прибытия", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    if (!Helper.ADDRESS_LIST.contains(editTextEndPointAddress.getText().toString())) {
+                        Helper.ADDRESS_LIST.add(editTextEndPointAddress.getText().toString());
+
+                        // update the autocomplete words
+
+                        editTextEndPointAddress.setAdapter(new ArrayAdapter<>(
+                                getContext(),
+                                R.layout.my_dropdown_item,
+                                //android.R.layout.simple_dropdown_item_1line,
+                                Helper.ADDRESS_LIST
+                                //Arrays.asList(getResources().getStringArray(R.array.addresses))
+                        ));
+                    }
                     if (!Helper.isKilometragePositive(textViewKilometrageStartPoint.getText().toString(),editTextKilometrageEnd.getText().toString())){
                         Toast.makeText(getContext(),"Пробег не может быть отрицательным",Toast.LENGTH_SHORT).show();
                         return;
@@ -186,7 +214,9 @@ public class OpenedRouteFragment extends Fragment {
                     editTextKilometrageEnd.setText(String.valueOf(route.getStartKilometrage() + 2));
                     buttonPlus.setVisibility(View.VISIBLE);
                     buttonMinus.setVisibility(View.VISIBLE);
+                    buttonClear.setVisibility(View.VISIBLE);
                     button.setText("OK");
+
                 }
             }
         });
@@ -206,8 +236,10 @@ public class OpenedRouteFragment extends Fragment {
             textViewProgress.setText("Получаем координаты...");
             textViewProgress.setVisibility(View.VISIBLE);
 
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 10, 10, locationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 10, 10, locationListener);
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 10, 10, locationListener);}
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 10, 10, locationListener);}
             //locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1000 * 10, 10, locationListener);
         } catch (SecurityException ex) {
         }

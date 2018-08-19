@@ -1,5 +1,6 @@
 package com.pablo.myroutes;
 
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+
+import org.apache.poi.ss.formula.functions.T;
 
 /**
  * Created by Paul on 26.11.2017.
@@ -37,7 +42,7 @@ public class EditRouteFragment extends Fragment implements IEditor {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            route = (Route)getArguments().getSerializable(ARG_PARAM);
+            route = (Route) getArguments().getSerializable(ARG_PARAM);
         }
     }
 
@@ -51,39 +56,75 @@ public class EditRouteFragment extends Fragment implements IEditor {
         editTextStartAddress.setText(route.getStartPoint());
         final EditText editTextEndAddress = view.findViewById(R.id.editTextEndAddress);
         editTextEndAddress.setText(route.getEndPoint());
-        final EditText editTextStartTime = view.findViewById(R.id.editTextStartTime);
-        editTextStartTime.setInputType(InputType.TYPE_CLASS_NUMBER);
-        editTextStartTime.setText(route.getStartTime());
-        final EditText editTextEndTime = view.findViewById(R.id.editTextEndTime);
-        editTextEndTime.setInputType(InputType.TYPE_CLASS_NUMBER);
-        editTextEndTime.setText(route.getEndTime());
+        final TextView textViewStartTime = view.findViewById(R.id.textViewStartTime);
+        //textViewStartTime.setInputType(InputType.TYPE_CLASS_NUMBER);
+        textViewStartTime.setText(route.getStartTime());
+        final TextView textViewEndTime = view.findViewById(R.id.textViewEndTime);
+        textViewEndTime.setInputType(InputType.TYPE_CLASS_NUMBER);
+        textViewEndTime.setText(route.getEndTime());
         final EditText editTextLength = view.findViewById(R.id.editTextLength);
         editTextLength.setInputType(InputType.TYPE_CLASS_NUMBER);
         editTextLength.setText(String.valueOf(route.getLength()));
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                String[] timeString = Helper.getTimeNow().split(":");
+                int hour = Integer.parseInt(timeString[0]);
+                int minute = Integer.parseInt(timeString[1]);
+                new TimePickerDialog(getContext(),new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                        TextView textView = (TextView)view;
+//                        if(hour>=10){
+//                            textView.setText(hour+":"+minute);}
+//                        else{textView.setText("0"+hour+":"+minute);}
+                        String strHour="";
+                        String strMinute="";
+                        if(hour<10){
+                            strHour="0"+String.valueOf(hour);
+                        }
+                        else strHour = String.valueOf(hour);
+                        if(minute<10){
+                            strMinute="0"+String.valueOf(minute);
+                        }
+                        else {
+                            strMinute = String.valueOf(minute);
+                        }
+                        // editTextTimeEnd.setText(hour+":"+minute);}
+
+                        textView.setText(strHour+":"+strMinute);
+                    }
+                },hour,minute,true).show();
+            }
+        };
+
+        textViewStartTime.setOnClickListener(onClickListener);
+        textViewEndTime.setOnClickListener(onClickListener);
 
         Button buttonOk = view.findViewById(R.id.buttonOk);
         buttonOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(editTextEndAddress.getText().toString().equals("")
-                        ||editTextStartAddress.getText().toString().equals("")
-                        ||editTextStartTime.getText().toString().equals("")
-                        ||editTextEndTime.getText().toString().equals("")
-                        ||editTextLength.getText().toString().equals("")){
-                    Toast.makeText(getContext(),"Все поля должны быть заполнены", Toast.LENGTH_SHORT).show();
+                if (editTextEndAddress.getText().toString().equals("")
+                        || editTextStartAddress.getText().toString().equals("")
+                        || textViewStartTime.getText().toString().equals("")
+                        || textViewEndTime.getText().toString().equals("")
+                        || editTextLength.getText().toString().equals("")) {
+                    Toast.makeText(getContext(), "Все поля должны быть заполнены", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(!Helper.isTimeCorrect(editTextStartTime.getText().toString(),editTextEndTime.getText().toString())){
-                    Toast.makeText(getContext(), "Некорректное время",Toast.LENGTH_SHORT).show();
+                if (!Helper.isTimeCorrect(textViewStartTime.getText().toString(), textViewEndTime.getText().toString())) {
+                    Toast.makeText(getContext(), "Некорректное время", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 route.setStartPoint(editTextStartAddress.getText().toString());
                 route.setEndPoint(editTextEndAddress.getText().toString());
-                route.setStartTime(editTextStartTime.getText().toString());
-                route.setEndTime(editTextEndTime.getText().toString());
+                route.setStartTime(textViewStartTime.getText().toString());
+                route.setEndTime(textViewEndTime.getText().toString());
                 route.setLength(Integer.parseInt(editTextLength.getText().toString()));
                 mListener.save();
-                Toast.makeText(getActivity().getBaseContext(),"Сохранено",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getBaseContext(), "Сохранено", Toast.LENGTH_SHORT).show();
                 getActivity().onBackPressed();
             }
         });
@@ -109,9 +150,9 @@ public class EditRouteFragment extends Fragment implements IEditor {
     }
 
     @Override
-    public void deleting(){
+    public void deleting() {
         //mListener.deleteRouteAndSave(route);
-        Toast.makeText(getActivity().getBaseContext(),"лол22",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity().getBaseContext(), "лол22", Toast.LENGTH_SHORT).show();
     }
 
     @Override

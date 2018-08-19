@@ -11,19 +11,14 @@ import java.io.FileOutputStream;
 
 import android.os.Environment;
 
-/**
- * Created by Paul on 05.12.2017.
- */
+class ExportService {
 
-public class ExportService {
-
-    static HSSFWorkbook workbook;
-    static Sheet sheet;
-    static Row row;
-    static Cell cell;
+    private static HSSFWorkbook workbook;
+    private static Sheet sheet;
+    private static Row row;
+    private static Cell cell;
 
     static void Export(RoutingDay[] routingDayListForExport) throws Exception {
-
 
         for (RoutingDay day : routingDayListForExport) {//int i =0;i<routingDayListForExport.size();i++){
             Export(day);
@@ -74,14 +69,14 @@ public class ExportService {
         SaveWorkbook(day.date + "(2)");
     }
 
-    static void OpenWorkbook(String name) throws Exception {
-        File file = new File(Environment.getExternalStorageDirectory(), name + ".xls");
+    private static void OpenWorkbook(String filename) throws Exception {
+        File file = new File(Environment.getExternalStorageDirectory(), filename + ".xls");
         FileInputStream fis = new FileInputStream(file);
         workbook = new HSSFWorkbook(fis);
         fis.close();
     }
 
-    static void SaveWorkbook(String filename) throws Exception {
+    private static void SaveWorkbook(String filename) throws Exception {
         FileOutputStream fs = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), filename + ".xls"));
         workbook.write(fs);
         workbook.close();
