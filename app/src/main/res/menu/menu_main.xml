@@ -6,7 +6,20 @@
         android:id="@+id/action_edit"
         android:orderInCategory="100"
         android:title="@string/action_edit"
-        app:showAsAction="never" />
+        app:showAsAction="never" >
+        <menu>
+            <item
+                android:id="@+id/edit_closed_days"
+                android:title="Закрытые дни"/>
+            <item
+                android:id="@+id/edit_current_day"
+                android:title="Текущий день"/>
+            <item
+                android:id="@+id/edit_address_list"
+                android:title="Адреса"/>
+        </menu>
+    </item>
+
     <item
         android:id="@+id/action_backup"
         android:orderInCategory="100"

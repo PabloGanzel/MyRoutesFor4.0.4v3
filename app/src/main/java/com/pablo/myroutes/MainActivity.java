@@ -8,12 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
     ArrayList<RoutingDay> routingDayList;
     RoutingDay routingDay;
     Route route;
+
+    private enum  iconColor {Red,Green}
 
     NotificationManager notificationManager;
     NotificationChannel mChannel;
@@ -92,8 +96,8 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
             e.printStackTrace();
         }
 
-        if(route.isOpen()) showNotification("Маршрут не завершен");
-        else if(routingDay.isOpen()) showNotification("День не завершен");
+        if(route.isOpen()) showNotification("Маршрут не завершен",iconColor.Red);
+        else if(routingDay.isOpen()) showNotification("День не завершен",iconColor.Green);
     }
 
     @Override
@@ -114,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         try {
             Helper.ADDRESS_LIST = (ArrayList<String>) Helper.getObjectByTag(ADDRESS_LIST_TAG, getBaseContext());
         } catch (Exception e) {
+
         }
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(1);
@@ -129,17 +134,30 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_edit) {
+        if (id == R.id.edit_closed_days) {
             Intent intent = new Intent(MainActivity.this, EditorActivity.class);
-
+            intent.putExtra("type", "RoutingDaysListFragment" );
             startActivity(intent);
             return true;
         }
+        if(id == R.id.edit_current_day){
+            Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+            intent.putExtra("type", "RoutesListFragment" );
+            startActivity(intent);
+            return true;
+        }
+        if(id==R.id.edit_address_list){
+            Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+            intent.putExtra("type", "AddressListFragment" );
+            startActivity(intent);
+            return true;
+        }
+
         if (id == R.id.save) {
             try {
                 Helper.backup(new Object[]{routingDayList, routingDay, route, Helper.ADDRESS_LIST});
             } catch (IOException ex) {
-
+                Toast.makeText(getBaseContext(),ex.getMessage(),Toast.LENGTH_SHORT).show();
             }
             return true;
         }
@@ -156,7 +174,9 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
                 Helper.saveObject(routingDayList, DAYS_LIST_TAG, getBaseContext());
                 Helper.saveObject(Helper.ADDRESS_LIST, ADDRESS_LIST_TAG, getBaseContext());
 
-            } catch (Exception ex) {}
+            } catch (Exception ex) {
+                Toast.makeText(getBaseContext(),ex.getMessage(),Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -214,9 +234,14 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, OpenDayFragment.newInstance(kilometrageStartDay),"OpenDayFragment").commit();
     }
 
-    private void showNotification(String message) {
+    private void showNotification(String message, iconColor IconColor) {
+
+        int iconID;
+        if (IconColor.equals(iconColor.Red)){iconID = R.drawable.icon_l_red;}
+        else {iconID = R.drawable.icon_l;}
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(notificationManager == null) {
+            if (notificationManager == null) {
                 notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             }
 
@@ -242,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
             pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
             builder.setContentTitle(message)  // required
-                    .setSmallIcon(R.drawable.icon_l) // required
+                    .setSmallIcon(iconID) // required
                     .setContentText("")  // required
                     .setAutoCancel(true)
                     .setContentIntent(pendingIntent);
@@ -254,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentsInterac
         else{
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.icon_l)
+                            .setSmallIcon(iconID)
                             .setContentTitle(message)
                             .setContentText("");
 

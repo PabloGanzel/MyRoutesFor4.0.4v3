@@ -8,13 +8,13 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import org.apache.poi.ss.formula.functions.T;
 
 /**
  * Created by Paul on 26.11.2017.
@@ -41,6 +41,9 @@ public class EditRouteFragment extends Fragment implements IEditor {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        EditorActivity.CURRENT_FRAGMENT_TAG = "EditRouteFragment";
+
         if (getArguments() != null) {
             route = (Route) getArguments().getSerializable(ARG_PARAM);
         }
@@ -52,10 +55,20 @@ public class EditRouteFragment extends Fragment implements IEditor {
 
         final View view = inflater.inflate(R.layout.fragment_edit_route, container, false);
 
-        final EditText editTextStartAddress = view.findViewById(R.id.editTextKilometrage);
+        ArrayAdapter adapter = new ArrayAdapter<>(
+                getContext(),
+                R.layout.my_dropdown_item,
+                //android.R.layout.simple_dropdown_item_1line,
+                Helper.ADDRESS_LIST);
+
+        final AutoCompleteTextView editTextStartAddress = view.findViewById(R.id.editTextStartAddress);
         editTextStartAddress.setText(route.getStartPoint());
-        final EditText editTextEndAddress = view.findViewById(R.id.editTextEndAddress);
+        editTextStartAddress.setAdapter(adapter);
+
+        final AutoCompleteTextView editTextEndAddress = view.findViewById(R.id.editTextEndAddress);
         editTextEndAddress.setText(route.getEndPoint());
+        editTextEndAddress.setAdapter(adapter);
+
         final TextView textViewStartTime = view.findViewById(R.id.textViewStartTime);
         //textViewStartTime.setInputType(InputType.TYPE_CLASS_NUMBER);
         textViewStartTime.setText(route.getStartTime());

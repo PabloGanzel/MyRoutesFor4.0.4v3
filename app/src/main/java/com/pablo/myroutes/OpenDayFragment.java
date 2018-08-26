@@ -46,7 +46,7 @@ public class OpenDayFragment extends Fragment{
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_open_day, container, false);
-        final EditText editText = view.findViewById(R.id.editTextKilometrage);
+        final EditText editText = view.findViewById(R.id.editTextStartAddress);
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setText(String.valueOf(kilometrageStartDay));
         Button b = view.findViewById(R.id.buttonBeginningDay);

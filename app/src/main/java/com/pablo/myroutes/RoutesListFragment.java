@@ -51,6 +51,8 @@ public class RoutesListFragment extends ListFragment implements IEditor {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
+        EditorActivity.CURRENT_FRAGMENT_TAG = "RoutesListFragment";
+
         if (getArguments() != null) {
             routingDay = (RoutingDay) getArguments().getSerializable(ARG_PARAM);
         }
@@ -71,7 +73,7 @@ public class RoutesListFragment extends ListFragment implements IEditor {
 
         multiChoiceAdapter = new SimpleAdapter(getContext(),
                 arrayList,
-                android.R.layout.simple_list_item_multiple_choice,
+                R.layout.my_list_item_multiplie_choice,
                 new String[]{"route", "info"},
                 new int[]{android.R.id.text1, android.R.id.text2});
 

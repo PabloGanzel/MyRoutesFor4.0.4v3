@@ -47,6 +47,8 @@ public class RoutingDaysListFragment extends ListFragment implements IEditor {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        EditorActivity.CURRENT_FRAGMENT_TAG = "RoutingDaysListFragment";
+
         /* / получение массива дат */
         if (getArguments() != null) {
             daysList = (ArrayList<RoutingDay>) getArguments().getSerializable(ARG_PARAM);
@@ -62,7 +64,7 @@ public class RoutingDaysListFragment extends ListFragment implements IEditor {
         singleChoiceAdapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_1, dateList);
         multiChoiceAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_multiple_choice, dateList);
+                R.layout.my_list_item_multiplie_choice, dateList);
         setListAdapter(singleChoiceAdapter);
         ListView l = getListView();
         l.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
